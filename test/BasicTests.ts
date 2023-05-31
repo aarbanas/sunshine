@@ -50,7 +50,6 @@ describe('Basic attribute persistence tests', function () {
 
         await order.save();
 
-        console.log(order._id);
         let newOrder = await Order.findOne<Order>({ _id : order._id });
 
         expect(newOrder.created).to.be.an("Date");
@@ -230,6 +229,7 @@ describe('Basic attribute persistence tests', function () {
 
         const article = new Article();
         article.encryptedProperty = "Hello Rijeka";
+        article.name = "Test article name";
 
         await article.save();
 
@@ -264,6 +264,7 @@ describe('Basic attribute persistence tests', function () {
 
         const buffer = Buffer.from([1, 2, 3]);
         article.binaryField = new Binary(buffer);
+        article.name = "Binary article name"
 
         await article.save();
         expect(article.binaryField).to.be.instanceOf(Binary);
@@ -276,6 +277,7 @@ describe('Basic attribute persistence tests', function () {
     it("Array with number types", async () => {
 
         const article = new Article();
+        article.name = "Array article name"
         article.numberArray = [1, 2, 3, 4, 5, 6];
         article.numberObjectArray = [{
             data: [10, 2]
@@ -367,6 +369,7 @@ describe('Basic attribute persistence tests', function () {
         ];
 
         const article = new Article();
+        article.name = 'Array of arrays article name'
         article.arrayOfArrays = arrayOfArrays
         await article.save();
 

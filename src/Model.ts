@@ -8,6 +8,7 @@
 import { Document } from "./Document"
 import { Sunshine } from "./Sunshine"
 import { EmbeddedModel } from "./EmbeddedModel"
+import { validateDataTypes, validateRequiredFields } from './Validators'
 import {
     ObjectId,
     FindOptions,
@@ -33,19 +34,28 @@ export class Model extends Document {
         super(data);
     }
 
-    async save(): Promise<boolean> {
-        if (this.hasOwnProperty("_id")) {
-            const _doc = this.fetchDocument(this, false, true, false);
-            const collection = Sunshine.getConnection().collection((this.constructor as any)._collection);
-            const timestamp = new Date();
+    async save(): Promise<void> {
+        const _doc = this.fetchDocument(this, false, true, false);
+        const collection = Sunshine.getConnection().collection((this.constructor as any)._collection);
+        const timestamp = new Date();
 
-            if (this.__updateOnSave) _doc[this.__updateOnSave] = new Date();
-            this.encryptDocument(_doc);
+        // Check fields which are set as required
+        if (this.__requiredFields?.length)
+            validateRequiredFields(_doc, this.__requiredFields);
+
+        validateDataTypes(_doc, this);
+
+        if (this.__updateOnSave)
+            _doc[this.__updateOnSave] = new Date();
+
+        this.encryptDocument(_doc);
+
+        if (this.hasOwnProperty("_id")) {
             if (collection.replaceOne) {
                 try {
                     await collection.replaceOne({ _id: this._id }, _doc, { upsert: true });
                     Model.emit("update", (this.constructor as any)._collection, timestamp);
-                    return true;
+                    return;
                 } catch (error) {
                     throw error;
                 }
@@ -59,23 +69,14 @@ export class Model extends Document {
             }
         }
         else
-            return this.create();
+            await this.create(_doc, collection, timestamp);
     }
 
-    async create(): Promise<boolean> {
-        const _doc = this.fetchDocument(this, false, true, false);
-        const collection = Sunshine.getConnection().collection((this.constructor as any)._collection);
-
-        const timestamp = new Date();
-
-        if (this.__updateOnSave) _doc[this.__updateOnSave] = new Date();
-
-        this.encryptDocument(_doc);
+    async create(_doc: any, collection: DatabaseCollection, timestamp: Date): Promise<void> {
         try {
           const result = await collection.insertOne(_doc);
           this._id = result.insertedId;
           Model.emit("insert", (this.constructor as any)._collection, timestamp);
-          return true
         } catch (error) {
           throw error
         }
@@ -476,27 +477,45 @@ export const embedded = () => {
  */
 // TODO: Complete embedded parsing
 export const Encrypted = () => {
-    return function (target: any, propertyKey: string) {
+    return function (target: Document, propertyKey: string) {
         if (!target.__encryptedFields) target.__encryptedFields = [];
         target.__encryptedFields.push(propertyKey);
     };
 }
 
-export const Integer = () => {
-    return function (target: any, propertyKey: string) {
-        if (!target.__integerFields)
-            target.__integerFields= [];
+export const Number = () => {
+    return function (target: Document, propertyKey: string) {
+        if (!target.__numberFields)
+            target.__numberFields = [];
 
-        target.__integerFields.push(propertyKey);
+        target.__numberFields.push(propertyKey);
     }
 }
 
 export const Text = () => {
-    return function (target: any, propertyKey: string) {
+    return function (target: Document, propertyKey: string) {
         if (!target.__textFields)
-            target.__textFields= [];
+            target.__textFields = [];
 
         target.__textFields.push(propertyKey);
+    }
+}
+
+export const Boolean = () => {
+    return function (target: Document, propertyKey: string) {
+        if (!target.__textFields)
+            target.__textFields = [];
+
+        target.__textFields.push(propertyKey);
+    }
+}
+
+export const Required = () => {
+    return function (target: Document, propertyKey: string) {
+        if (!target.__requiredFields)
+            target.__requiredFields = [];
+
+        target.__requiredFields.push(propertyKey);
     }
 }
 
