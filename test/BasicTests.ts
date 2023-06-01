@@ -413,5 +413,20 @@ describe('Basic attribute persistence tests', function () {
         expect(findArticles.length).to.be.equal(0);
     });
 
+    it('should get distinct customer firstnames', async function () {
+        const result = await Customer.distinct('firstname', {});
+
+        expect(result.length).to.equal(2);
+        expect(result.findIndex((name) => name === 'Hans')).to.be.greaterThan(-1)
+        expect(result.findIndex((name) => name === 'Markus')).to.be.greaterThan(-1)
+    });
+
+    it('should get distinct customer firstnames with filter', async function () {
+        const result = await Customer.distinct('firstname', { lastname: { $exists: true } });
+
+        expect(result.length).to.equal(1);
+        expect(result.findIndex((name) => name === 'Markus')).to.be.greaterThan(-1)
+    });
+
 });
 

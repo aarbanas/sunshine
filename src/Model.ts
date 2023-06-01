@@ -142,7 +142,7 @@ export class Model extends Document {
 
     }
 
-    static find<T extends Model>(query, options?: FindOptions, collection?: string): QueryPointer<T> {
+    static find<T extends Model>(query: Query, options?: FindOptions, collection?: string): QueryPointer<T> {
         const _collection = (collection) ? collection : this._collection;
 
         const queryPointer = Sunshine.getConnection().collection(_collection).find(query, options);
@@ -156,7 +156,7 @@ export class Model extends Document {
         return new QueryPointer<T>(queryPointer, this);
     }
 
-    static async distinct<T extends Model>(key: string, query: Query[], options?: DistinctOptions): Promise<T[]> {
+    static async distinct(key: string, query: Query, options?: DistinctOptions): Promise<any[]> {
         const _collection = this._collection;
         const timestamp = new Date();
 
