@@ -67,6 +67,24 @@ export class Document {
      */
     public __booleanFields: Array<string>;
 
+    /**
+     * Boolean fields
+     * @param data
+     */
+    public __objectIdFields: Array<string>;
+
+    /**
+     * Boolean fields
+     * @param data
+     */
+    public __emailFields: Array<string>;
+
+    /**
+     * Boolean fields
+     * @param data
+     */
+    public __dateFields: Array<string>;
+
     constructor(data?: any) {
         //this.__autoPopulate = false;
         //this.__ignoredAttributes = [];

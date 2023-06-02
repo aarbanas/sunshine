@@ -5,10 +5,10 @@
  *  Copyright (c) 2017 Michael Hasler
  */
 
-import { Document } from "./Document"
-import { Sunshine } from "./Sunshine"
-import { EmbeddedModel } from "./EmbeddedModel"
-import { validateDataTypes, validateRequiredFields } from './Validators'
+import { Document } from "./Document";
+import { Sunshine } from "./Sunshine";
+import { EmbeddedModel } from "./EmbeddedModel";
+import { validateDataTypes, validateRequiredFields } from './Validators';
 import {
     ObjectId,
     FindOptions,
@@ -19,7 +19,7 @@ import {
     DistinctOptions,
     AggregateOptions,
     Collection as DatabaseCollection
-} from "mongodb"
+} from "mongodb";
 
 type Query = { [key: string]: any }
 export class Model extends Document {
@@ -404,60 +404,16 @@ export function Collection(name: string) {
  */
 export const objectid = () => {
     return (target: any, key: string) => {
-        let pKey = `_${ key }`;
+        if (!target.__objectIdFields)
+            target.__objectIdFields = [];
 
-        // called at runtime to access (this) as instance of class
-        let init = function (isGet: boolean) {
-            return function (newVal?) {
-
-                // Hidden property
-                Object.defineProperty(this, pKey, { value: 0, enumerable: false, configurable: true, writable: true });
-
-                // Public property
-                Object.defineProperty(this, key, {
-                    get: () => {
-                        return this[pKey];
-                    },
-                    set: (val) => {
-                        if (val instanceof ObjectId) {
-                            this[pKey] = val;
-                        } else {
-                            try {
-                                this[pKey] = ObjectId.createFromHexString(val);
-                            } catch (exception) {
-                                this[pKey] = null;
-                            }
-                        }
-                    },
-                    enumerable: true,
-                    configurable: true
-                });
-
-                // Set / get values
-                if (isGet) {
-                    return this[key];
-                } else {
-                    this[key] = newVal;
-                }
-            };
-        };
-
-        // Will be called on first execution and replaced
-        return Object.defineProperty(target, key, {
-            get: init(true),
-            set: init(false),
-            enumerable: true,
-            configurable: true
-        });
+        target.__objectIdFields.push(key);
     };
 }
-
-//}
 
 /**
  * Reference embedded
  *
- * @param {boolean} value
  * @returns {(target: any, propertyKey: string, descriptor: PropertyDescriptor) => any}
  */
 // TODO: Complete embedded parsing
@@ -472,7 +428,6 @@ export const embedded = () => {
 /**
  * Reference encrypted
  *
- * @param {boolean} value
  * @returns {(target: any, propertyKey: string, descriptor: PropertyDescriptor) => any}
  */
 // TODO: Complete embedded parsing
@@ -507,6 +462,24 @@ export const Boolean = () => {
             target.__textFields = [];
 
         target.__textFields.push(propertyKey);
+    }
+}
+
+export const Email = () => {
+    return function (target: Document, propertyKey: string) {
+        if (!target.__emailFields)
+            target.__emailFields = [];
+
+        target.__emailFields.push(propertyKey);
+    }
+}
+
+export const date = () => {
+    return function (target: Document, propertyKey: string) {
+        if (!target.__dateFields)
+            target.__dateFields = [];
+
+        target.__dateFields.push(propertyKey);
     }
 }
 
