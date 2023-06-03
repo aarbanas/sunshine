@@ -53,13 +53,13 @@ export class Document {
      * Number fields
      * @param data
      */
-    public __numberFields: Array<string>;
+    public __numberFields: { propertyKey: string, min?: number, max?: number }[];
 
     /**
      * Text fields
      * @param data
      */
-    public __textFields: Array<string>;
+    public __textFields: { propertyKey: string, match?: RegExp }[];
 
     /**
      * Boolean fields
@@ -83,7 +83,7 @@ export class Document {
      * Boolean fields
      * @param data
      */
-    public __dateFields: Array<string>;
+    public __dateFields: { propertyKey: string, min?: Date, max?: Date }[];
 
     constructor(data?: any) {
         //this.__autoPopulate = false;

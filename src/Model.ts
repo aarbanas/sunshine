@@ -18,8 +18,11 @@ import {
     UpdateOptions,
     DistinctOptions,
     AggregateOptions,
-    Collection as DatabaseCollection
-} from "mongodb";
+    Collection as DatabaseCollection,
+    IndexSpecification,
+    CreateIndexesOptions,
+    IndexDescription
+} from "mongodb"
 
 type Query = { [key: string]: any }
 export class Model extends Document {
@@ -49,6 +52,13 @@ export class Model extends Document {
             _doc[this.__updateOnSave] = new Date();
 
         this.encryptDocument(_doc);
+
+        // Remove prefixed helper variables before save
+        Object.entries(_doc).forEach(([key]) => {
+            if (key !== '__updateOnSave' && key.includes('__')) {
+                delete _doc[key]
+            }
+        })
 
         if (this.hasOwnProperty("_id")) {
             if (collection.replaceOne) {
@@ -205,6 +215,14 @@ export class Model extends Document {
         } catch (error) {
             throw error;
         }
+    }
+
+    static createIndex (indexSpec: IndexSpecification, options?: CreateIndexesOptions): Promise<string> {
+        return Sunshine.getConnection().collection(this._collection).createIndex(indexSpec, options);
+    }
+
+    static createIndexes (indexSpecs: IndexDescription[], options?: CreateIndexesOptions): Promise<string[]> {
+        return Sunshine.getConnection().collection(this._collection).createIndexes(indexSpecs, options);
     }
 
     static collection(): DatabaseCollection {
@@ -438,30 +456,32 @@ export const Encrypted = () => {
     };
 }
 
-export const Number = () => {
+export const Number = (data?: { min?: number, max?: number }) => {
     return function (target: Document, propertyKey: string) {
+        const { min, max } = data || {};
         if (!target.__numberFields)
             target.__numberFields = [];
 
-        target.__numberFields.push(propertyKey);
+        target.__numberFields.push({ propertyKey, min, max });
     }
 }
 
-export const Text = () => {
+export const Text = (data?: { match?: RegExp }) => {
     return function (target: Document, propertyKey: string) {
+        const { match } = data || {};
         if (!target.__textFields)
             target.__textFields = [];
 
-        target.__textFields.push(propertyKey);
+        target.__textFields.push({ propertyKey, match });
     }
 }
 
 export const Boolean = () => {
     return function (target: Document, propertyKey: string) {
-        if (!target.__textFields)
-            target.__textFields = [];
+        if (!target.__booleanFields)
+            target.__booleanFields = [];
 
-        target.__textFields.push(propertyKey);
+        target.__booleanFields.push(propertyKey);
     }
 }
 
@@ -474,12 +494,13 @@ export const Email = () => {
     }
 }
 
-export const date = () => {
+export const date = (data?: { min?: Date, max?: Date }) => {
     return function (target: Document, propertyKey: string) {
+        const { min, max } = data || {};
         if (!target.__dateFields)
             target.__dateFields = [];
 
-        target.__dateFields.push(propertyKey);
+        target.__dateFields.push({ propertyKey, min, max });
     }
 }
 

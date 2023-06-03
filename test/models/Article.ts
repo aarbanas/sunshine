@@ -38,13 +38,13 @@ import {Bytes32} from "./Bytes32";
 export class Article extends Model {
 
     @Required()
-    @Text()
+    @Text({ match: /^[^0-9]+$/ })
     name: string;
     description: string | Object;
 
     binaryField: Binary;
 
-    @Number()
+    @Number({ min: 10, max: 100 })
     price: number;
     stock: number;
 

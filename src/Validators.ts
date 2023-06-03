@@ -1,5 +1,11 @@
 import { ObjectId } from 'mongodb';
 import { Document } from './Document';
+import {
+    InvalidDateValueError,
+    InvalidFieldTypeError,
+    InvalidNumberValueError,
+    RequiredFieldError, StringNotMatchingRegExpError
+} from './Errors'
 
 export const validateRequiredFields = (_doc: any, requiredFields: string[]): void => {
     for (const field of requiredFields) {
@@ -28,17 +34,32 @@ export const validateDataTypes = (_doc: any, document: Document): void => {
         validateDates(_doc, document.__dateFields);
 }
 
-const validateNumbers = (_doc: any, numberFields: string[]): void => {
+const validateNumbers = (_doc: any, numberFields: { propertyKey: string, min?: number, max?: number }[]): void => {
     for (const field of numberFields) {
-        if (_doc.hasOwnProperty(field) && typeof _doc[field] !== 'number')
-            throw new InvalidFieldTypeError('Number', field);
+        if (!_doc.hasOwnProperty(field.propertyKey))
+            return;
+
+        if (typeof _doc[field.propertyKey] !== 'number')
+            throw new InvalidFieldTypeError('Number', field.propertyKey);
+
+        if (field.min && _doc[field.propertyKey] < field.min)
+            throw new InvalidNumberValueError(_doc[field.propertyKey], field.min);
+
+        if (field.max && _doc[field.propertyKey] > field.max)
+            throw new InvalidNumberValueError(_doc[field.propertyKey], null, field.max);
     }
 }
 
-const validateStrings = (_doc: any, stringFields: string[]): void => {
+const validateStrings = (_doc: any, stringFields: { propertyKey: string, match?: RegExp }[]): void => {
     for (const field of stringFields) {
-        if (_doc.hasOwnProperty(field) && typeof _doc[field] !== 'string')
-            throw new InvalidFieldTypeError('String', field);
+        if (!_doc.hasOwnProperty(field.propertyKey))
+            return
+
+        if (typeof _doc[field.propertyKey] !== 'string')
+            throw new InvalidFieldTypeError('String', field.propertyKey);
+
+        if (field.match && !field.match.test(_doc[field.propertyKey]))
+            throw new StringNotMatchingRegExpError(_doc[field.propertyKey], field.match.toString());
     }
 }
 
@@ -56,11 +77,17 @@ const validateObjectIds = (_doc: any, objectIdFields: string[]): void => {
     }
 }
 
-const validateDates = (_doc: any, dateFields: string[]): void => {
+const validateDates = (_doc: any, dateFields: { propertyKey: string, min?: Date, max?: Date }[]): void => {
     for (const field of dateFields) {
-        if (_doc.hasOwnProperty(field)) {
-            if (!(_doc[field] instanceof Date && !isNaN(_doc[field])))
-                throw new InvalidFieldTypeError('ObjectId', field)
+        if (_doc.hasOwnProperty(field.propertyKey)) {
+            if (!(_doc[field.propertyKey] instanceof Date && !isNaN(_doc[field.propertyKey])))
+                throw new InvalidFieldTypeError('ObjectId', field.propertyKey)
+
+            if (field.min && _doc[field.propertyKey] < field.min)
+                throw new InvalidDateValueError(_doc[field.propertyKey], field.min);
+
+            if (field.max && _doc[field.propertyKey] > field.max)
+                throw new InvalidDateValueError(_doc[field.propertyKey], null, field.max);
         }
     }
 }
@@ -84,17 +111,5 @@ const validateEmails = (_doc: any, emailFields: string[]): void => {
             if (domainParts.some((part) => part.length > 64))
                 throw new InvalidFieldTypeError('Email', field);
         }
-    }
-}
-
-export class RequiredFieldError extends Error {
-    constructor (field: string) {
-        super(`Missing required field: '${field}'`);
-    }
-}
-
-export class InvalidFieldTypeError extends Error {
-    constructor (type: string, field: string) {
-        super(`Field '${field}' must be of type '${type}'`);
     }
 }
