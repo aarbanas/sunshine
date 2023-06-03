@@ -328,7 +328,7 @@ export class Model extends Document {
     }
 
     private checkAndAddDefaultValue(_doc: any, key: string, defaultValue: number | Date): void {
-        if (!_doc.hasOwnProperty(key) && defaultValue)
+        if (!_doc.hasOwnProperty(key) && defaultValue?.toString())
             _doc[key] = defaultValue;
     }
 

@@ -21,7 +21,7 @@ describe('Default values tests', () => {
         await customer.save();
 
         const _customer = await Customer.findOne<Customer>({ _id: customer._id });
-        expect(_customer.height).to.equal(100);
+        expect(_customer.height).to.equal(0);
     });
 
   it('should add default date value', async () => {

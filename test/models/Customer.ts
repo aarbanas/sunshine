@@ -50,6 +50,6 @@ export class Customer extends Model{
     @text({ defaultValue: 'test' })
     nickname: string;
 
-    @number({ defaultValue: 100 })
+    @number({ defaultValue: 0 })
     height: number;
 }
