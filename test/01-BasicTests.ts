@@ -1,11 +1,11 @@
-import {Item, Order} from "./models/Order";
 import {expect} from "chai";
+import {Sunshine} from "../src";
+import {Document} from "../src";
+import {EmbeddedModel} from "../src";
 import {Binary, ObjectId} from "mongodb";
-import {Customer} from "./models/Customer";
-import {EmbeddedModel} from "../src/EmbeddedModel";
 import {Article} from "./models/Article";
-import {Sunshine} from "../src/Sunshine";
-import {Document} from "../src/Document";
+import {Item, Order} from "./models/Order";
+import {Customer} from "./models/Customer";
 import { LanguageModel } from "./models/LanguageModel";
 
 const events = [];
