@@ -67,13 +67,15 @@ import { Collection, Model } from './Model'
 
 @Collection('users')
 export class User extends Model {
-  _id: ObjectId
-  email: string
-  password: string
+  _id: ObjectId;
+  email: string;
+  password: string;
   
-  firstname?: string
-  lastname?: string
+  firstname?: string;
+  lastname?: string;
 }
 ```
+Model class needs to have decorator `Collection()` where argument
+passed is the name of collection (table) in MongoDB. 
 
 
