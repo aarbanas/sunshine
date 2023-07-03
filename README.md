@@ -76,6 +76,40 @@ export class User extends Model {
 }
 ```
 Model class needs to have decorator `Collection()` where argument
-passed is the name of collection (table) in MongoDB. 
+passed is the name of collection in MongoDB. 
 
+#### Decorators
+Model has various decorators which are used for data validation
+and speed up the development process. There are a couple of 
+decorator types:
+1. Data type decorators
+2. Required decorator
+3. Encrypted decorator
+
+##### Data type decorators
+There are multiple Data type decorators, but are all explained 
+bellow.
+
+##### objectid
+This is just simple validation type where decorator is checking 
+if specified field is valid `ObjectId`.
+```typescript
+class TestModel extends Model {
+  
+  @objectid()
+  customer_id: ObjectId;  
+}
+```
+
+##### number
+Number data type decorator has multiple features. It is validating
+if data passed in the variable is valid and also there is a 
+possibility to specify `min` and `max` values.
+```typescript
+class TestModel extends Model {
+  
+  @objectid()
+  customer_id: ObjectId;  
+}
+```
 
