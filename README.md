@@ -95,7 +95,7 @@ export class User extends Model {
 Model class needs to have decorator `Collection()` where argument
 passed is the name of collection in MongoDB. 
 
-#### Decorators
+### Decorators
 Model has various decorators which are used for data validation
 and speed up the development process. There are a couple of 
 decorator types:
@@ -103,11 +103,11 @@ decorator types:
 2. [Required decorator](#required-decorator)
 3. [Encrypted decorator](#encrypted-decorator)
 
-##### Data type decorators
+### Data type decorators
 There are multiple Data type decorators, but are all explained 
 bellow.
 
-##### objectid
+### ObjectId
 This is just simple validation type where decorator is checking 
 if specified field is valid `ObjectId`.
 ```typescript
@@ -118,7 +118,7 @@ class TestModel extends Model {
 }
 ```
 
-##### number
+### Number
 Number data type decorator has multiple features. It is validating
 if data passed in the variable is valid and also there is a 
 possibility to specify `min`, `max` and `defaultValue` values.
@@ -134,7 +134,7 @@ time `save()` is called on the model class (e.g. `await user.save()`). On the ot
 `defaultValue` is not used for validation, but for adding value if one is missing before
 storing object in the database.
 
-##### text
+### Text
 Text decorator is validating if data passed is really of `string` type, and it has 
 additional parameters `match` and `defaultValue` which can also be used.
 ```typescript
@@ -147,7 +147,7 @@ class TestModel extends Model {
 In the text decorator `match` is used for validating strings based on the `RegExp`
 provided as parameter and `defaultValue` is working the same way as `number` decorator.
 
-##### boolean
+### Boolean
 This is just simple validation type where decorator is checking
 if specified field is valid `boolean` type.
 ```typescript
@@ -158,7 +158,7 @@ class TestModel extends Model {
 }
 ```
 
-##### email
+### Email
 This is just simple validation type where decorator is checking
 if specified field is valid `email` string type.
 ```typescript
@@ -169,7 +169,7 @@ class TestModel extends Model {
 }
 ```
 
-##### date
+### Date
 Date data type decorator has multiple features. It is validating
 if data passed in the variable is valid and also there is a
 possibility to specify `min`, `max` and `defaultValue` values.
@@ -186,7 +186,7 @@ class TestModel extends Model {
 ```
 The logic behind `min`, `max` and `defaultValue` is the same as on th `number` decorator
 
-##### Required decorator
+### Required decorator
 When specifying model for some database collection there is often requirement to check 
 if some minimum fields are existing. For that `required` decorator is used.
 ```typescript
@@ -198,7 +198,7 @@ class TestModel extends Model {
 }
 ```
 
-##### Encrypted decorator
+### Encrypted decorator
 There is also a possibility to encrypt some keys using `Encrypted` decorator.
 ```typescript
 class TestModel extends Model {
