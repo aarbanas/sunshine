@@ -10,14 +10,19 @@ Node.js to work with nosql Mongo database systems.
    2. [Model](#model)
       1. [Decorators](#decorators)
          1. [Data type decorators](#data-type-decorators)
-            1. [objectid](#objectid)
-            2. [number](#number)
-            3. [text](#text)
-            4. [boolean](#boolean)
-            5. [email](#email)
-            6. [date](#date)
+            1. [ObjectId](#objectid)
+            2. [Number](#number)
+            3. [Text](#text)
+            4. [Boolean](#boolean)
+            5. [Email](#email)
+            6. [Date](#date)
          2. [Required decorator](#required-decorator)
          3. [Encrypted decorator](#encrypted-decorator)
+      2. [Read items from MongoDB](#read-items-from-mongodb)
+         1. [Find one](#find-one)
+         2. [Find](#find)
+         3. [Aggregate](#aggregate)
+      3. [Create and update](#create-and-update)
 
 ## Installation
 To work with Sunshine you must first have node installed on 
@@ -209,3 +214,64 @@ class TestModel extends Model {
 ```
 When using `Encrypted` decorator each time you are saving item in the database or reading
 from database the decorator is automatically encrypting and decrypting fields.
+
+### Read items from MongoDB
+When querying items from database Sunshine is providing four main actions `findOne`,
+`find`, `aggregate` and `distinct`. There is a possibility to use them when reading data 
+from the database.
+
+### Find one
+To query only one item from the database we can use `findOne` method. When using this 
+action MongoDB is going to return the first item found in the database matching the query
+and return it.
+```typescript
+const user = await User.findOne<User>(
+  { email: "test@test.com" },
+  { projection: { email: true } }
+);
+```
+We need to pass the type before invoking the function so that typescript knows what
+model is returned from the database.
+First argument of the method is query defined by 
+[MongoDB](https://www.mongodb.com/docs/manual/reference/method/db.collection.findOne/),
+and second argument are the options defined by the 
+[mongo driver for nodejs](https://github.com/mongodb/node-mongodb-native/blob/8693987b66dff745c8421ac9cdc29dc772b1f675/src/operations/find.ts#L26).
+
+### Find
+When querying multiple documents from the database there is action called `find` which is 
+returning multiple documents. That to convert response into array we need to call 
+`.toArray()` after the function invocation.
+```typescript
+const users = await User.find<User>(
+  { active: true },
+  { 
+    limit: 10, 
+    skip: 20,
+    sort: { firstname: 1 } 
+  }
+).toArray();
+```
+`Find` has the same rules as [Find one](#find-one) has regarding arguments in the method.
+
+### Aggregate
+
+### Create and update
+To make things easier there is one method exposed on the Model object for creating and
+updating the object in database, it is called `save`.
+
+#### Create
+When creating new object for inserting into database we must first create it in memory.
+After all the data is prepared and object is ready we just call method `save()` on the 
+Model object like bellow.
+```typescript
+const customer = new Customer();
+
+customer.firstname = "Test";
+customer.title = "Mr";
+customer.email = "test@test.com";
+
+await customer.save();
+```
+
+#### Update
+When updating the model we must first query it from the database.

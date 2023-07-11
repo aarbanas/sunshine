@@ -87,8 +87,7 @@ describe('Basic attribute persistence tests', function () {
     });
 
     it("Query non existing documents (handling of empty - null results)", async () => {
-
-        let customer = await Customer.findOne({ _id: "null" });
+        const customer = await Customer.findOne<Customer>({ _id: "null" });
 
         expect(customer).to.be.null;
 
