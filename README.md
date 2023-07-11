@@ -104,12 +104,13 @@ class TestModel extends Model {
 ##### number
 Number data type decorator has multiple features. It is validating
 if data passed in the variable is valid and also there is a 
-possibility to specify `min` and `max` values.
+possibility to specify `min`, `max` and `defaultValue` values.
 ```typescript
 class TestModel extends Model {
-  
-  @objectid()
-  customer_id: ObjectId;  
+
+  @number({ min: 10, max: 100, defaultValue: 0 })
+  price: number; 
 }
 ```
-
+Values for `min` and `max` are validation values, which when used will be checked every
+time `save()` is called on the model (e.g. `await user.save()`)
