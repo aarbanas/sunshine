@@ -16,11 +16,14 @@ import {
     UpdateFilter,
     UpdateOptions,
     DistinctOptions,
+    BulkWriteResult,
     AggregateOptions,
-    Collection as DatabaseCollection,
+    IndexDescription,
+    BulkWriteOptions,
     IndexSpecification,
     CreateIndexesOptions,
-    IndexDescription, AnyBulkWriteOperation, BulkWriteOptions, BulkWriteResult
+    AnyBulkWriteOperation,
+    Collection as DatabaseCollection
 } from "mongodb"
 import { Validators } from './Validators'
 
