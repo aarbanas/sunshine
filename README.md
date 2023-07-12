@@ -22,6 +22,7 @@ Node.js to work with nosql Mongo database systems.
          1. [Find one](#find-one)
          2. [Find](#find)
          3. [Aggregate](#aggregate)
+         4. [Distinct](#distinct)
       3. [Create and update](#create-and-update)
          1. [Create](#create)
          2. [Update](#update)
@@ -272,6 +273,14 @@ const users = await User.aggregate<User>(
 ```
 The second argument in the function are the [AggregateOptions](https://github.com/mongodb/node-mongodb-native/blob/db356358f93e01e597466992a9910f6fe63ab091/src/operations/aggregate.ts#L19)
 provided by the native mongodb driver for Node.js
+
+### Distinct
+Distinct action is going to return array of all the unique values found in the database 
+of a specific field.
+```typescript
+const firstnames = await Customer.distinct('firstname', {});
+```
+More information about distinct can be found in official Mongo [docs](https://www.mongodb.com/docs/manual/reference/method/db.collection.distinct/).
 
 ### Create and update
 To make things easier there is one method exposed on the Model object for creating and
