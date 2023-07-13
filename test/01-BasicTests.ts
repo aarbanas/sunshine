@@ -7,7 +7,8 @@ import {
     DeleteOneModel,
     InsertOneModel,
     ObjectId,
-    ReplaceOneModel
+    UpdateManyModel,
+    UpdateOneModel
 } from "mongodb"
 import {Article} from "./models/Article";
 import {Item, Order} from "./models/Order";
@@ -453,11 +454,26 @@ describe('Basic attribute persistence tests', function () {
             expect(result.deletedCount).to.equal(1);
         });
 
-        it('should bulk replace one and update one', async function () {
-            const replaceOne: ReplaceOneModel = {
-                filter: {},
-                replacement: {}
-            }
+        it('should bulk update one', async function () {
+            const updateOne: UpdateOneModel = {
+                filter: { customer_id: { $eq: new ObjectId('58f0c0ac235ea70d83e6c672') } },
+                update: { $set: { attributes: { payment: 'authorized' } } }
+            };
+
+            const result = await Order.bulkWrite([{ updateOne }]);
+            expect(result.matchedCount).to.equal(1);
+            expect(result.modifiedCount).to.equal(1);
+        });
+
+        it('should bulk update manu', async function () {
+            const updateMany: UpdateManyModel = {
+                filter: { customer_id: { $eq: new ObjectId('58f0c0ac235ea70d83e6c672') } },
+                update: { $set: { attributes: { payment: 'authorized' } } }
+            };
+
+            const result = await Order.bulkWrite([{ updateMany }]);
+            expect(result.matchedCount).to.equal(3);
+            expect(result.modifiedCount).to.equal(2);
         })
     })
 });
