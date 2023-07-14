@@ -1,11 +1,17 @@
-import {expect} from 'chai';
+import * as chai from 'chai'
+import { expect } from 'chai';
+import { Document } from '../src';
+import { EmbeddedModel } from '../src';
+import { Article } from './models/Article';
+import { Item, Order } from './models/Order';
+import { Customer } from './models/Customer';
+import * as chaiAsPromised from 'chai-as-promised';
+import { LanguageModel } from './models/LanguageModel';
 import {
     InvalidKeyValueError,
     number,
     Sunshine,
 } from '../src'
-import {Document} from '../src';
-import {EmbeddedModel} from '../src';
 import {
     Binary,
     DeleteOneModel,
@@ -14,12 +20,6 @@ import {
     UpdateManyModel,
     UpdateOneModel
 } from 'mongodb'
-import {Article} from './models/Article';
-import {Item, Order} from './models/Order';
-import {Customer} from './models/Customer';
-import { LanguageModel } from './models/LanguageModel';
-import * as chai from 'chai'
-import * as chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
 
