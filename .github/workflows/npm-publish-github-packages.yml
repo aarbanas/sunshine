@@ -4,7 +4,7 @@
 name: Node.js Package
 
 on:
-  pull_request:
+  push:
     branches: [ "master" ]
 
 jobs:
@@ -34,7 +34,7 @@ jobs:
         run: npm ci
         
       - name: Build package
-        run: npm build
+        run: npm run build
         
       - name: Run script file
         run: |
