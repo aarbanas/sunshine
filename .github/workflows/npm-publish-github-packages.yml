@@ -39,7 +39,7 @@ jobs:
       - name: Run script file
         run: |
            chmod +x ./shell.sh
-           ./shell.sh "${{ inputs.version }}"
+           ./shell.sh "${{ github.event.pull_request.labels[0].name }}"
         shell: bash
       - run: npm publish
         env:
