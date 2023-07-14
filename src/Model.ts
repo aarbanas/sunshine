@@ -23,7 +23,7 @@ import {
     IndexSpecification,
     CreateIndexesOptions,
     AnyBulkWriteOperation,
-    Collection as DatabaseCollection
+    Collection as DatabaseCollection, CountDocumentsOptions
 } from "mongodb"
 import { Validators } from './Validators'
 import { InvalidKeyValueError } from './Errors'
@@ -59,29 +59,20 @@ export class Model extends Document {
 
         // Remove prefixed helper variables before save
         Object.entries(_doc).forEach(([key]) => {
-            if (key !== '__updateOnSave' && key.includes('__')) {
+            if (key !== '__updateOnSave' && key.startsWith('__')) {
                 delete _doc[key]
             }
         });
 
-        // If object key has dot throw error
+        // If object key has dot, throw error
         // e.g. { attributes: { test.key: 123 } }
         this.validateIfObjectKeyHasDot(_doc)
 
         if (this.hasOwnProperty("_id")) {
-            if (collection.replaceOne) {
-                try {
-                    await collection.replaceOne({ _id: this._id }, _doc, { upsert: true });
-                    Model.emit("update", (this.constructor as any)._collection, timestamp);
-                    return;
-                } catch (error) {
-                    throw error;
-                }
-            }
-
             try {
-                await collection.updateOne({ _id: this._id }, _doc, { upsert: true });
+                await collection.replaceOne({ _id: this._id }, _doc, { upsert: true });
                 Model.emit("update", (this.constructor as any)._collection, timestamp);
+                return;
             } catch (error) {
                 throw error;
             }
@@ -247,12 +238,25 @@ export class Model extends Document {
         }
     }
 
-    static async bulkWrite(operations: AnyBulkWriteOperation[], options?: BulkWriteOptions): Promise<BulkWriteResult> {
+    static async bulkWrite (operations: AnyBulkWriteOperation[], options?: BulkWriteOptions): Promise<BulkWriteResult> {
         const _collection = this._collection;
         const timestamp = new Date();
 
         try {
             const result = await Sunshine.getConnection().collection(_collection).bulkWrite(operations, options);
+            Model.emit("query", _collection, timestamp);
+            return result;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    static async count (filter?: Query, options?: CountDocumentsOptions): Promise<number> {
+        const _collection = this._collection;
+        const timestamp = new Date();
+
+        try {
+            const result = await Sunshine.getConnection().collection(_collection).countDocuments(filter)
             Model.emit("query", _collection, timestamp);
             return result;
         } catch (error) {
@@ -421,13 +425,6 @@ export class QueryPointer<T extends Model> {
     }
 
     // --- Close Pipeline -------------------------------------------------------
-
-    public async count(): Promise<number> {
-        const result = await this._queryPointer.count();
-        this.emit();
-        return result;
-    }
-
     public async toArray(type?: { new(): T }): Promise<Array<T>> {
         try {
             const results = await this._queryPointer.toArray();
