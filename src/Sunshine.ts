@@ -1,5 +1,5 @@
 import { EventEmitter } from "events";
-import { MongoClient, Db } from "mongodb"
+import { MongoClient, Db, ClientSession, ClientSessionOptions } from "mongodb"
 
 /**
  *  Sunshine DAO Connector
@@ -52,6 +52,10 @@ export class Sunshine {
         URI += hostname + "/" + database;
 
         return this.connectURI(URI, encryptionKey);
+    }
+
+    static startSession (options?: ClientSessionOptions): ClientSession {
+        return Sunshine.mongoClient.startSession(options);
     }
 
     static injectConnection(db: Db): void {
